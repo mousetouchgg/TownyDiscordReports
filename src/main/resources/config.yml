@@ -1,0 +1,26 @@
+# 空欄の場合、HTTP通知と日次レポートの送信処理を停止します。
+# 本番URLを開発環境に設定しないでください。環境変数TDR_WEBHOOK_URLを優先します。
+webhook-url: ''
+notifications:
+  nation-create: true
+  nation-delete: true
+  town-create: true
+  town-delete: true
+  king-change: true
+  siege-start: true
+  siege-end: true
+ranking:
+  enabled: true
+  limit: 10 # 1〜50
+schedule:
+  # 毎日配信します。旧設定schedule.dayは使用しません。
+  time: '12:00' # HH:mm
+  timezone: Asia/Tokyo
+# プラグインデータフォルダーからの相対パスのみ。変更はサーバー再起動が必要です。
+sqlite-path: reports.db
+retry:
+  attempts: 3 # 429の最大試行回数（5xx・通信結果不明は自動再送停止）（1〜10）
+  delay-seconds: 2
+  timeout-seconds: 10
+# デバッグ時もWebhook URLやHTTP例外本文は出力しません。
+debug: false

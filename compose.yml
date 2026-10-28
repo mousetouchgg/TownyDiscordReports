@@ -1,0 +1,22 @@
+name: towny-discord-reports-dev
+services:
+  paper:
+    image: amazoncorretto:25
+    user: '${LOCAL_UID:-1000}:${LOCAL_GID:-1000}'
+    working_dir: /server
+    environment:
+      TDR_ALLOW_PROBE: '${TDR_ALLOW_PROBE:-false}'
+    command: ['java', '--enable-native-access=ALL-UNNAMED', '-Xms512M', '-Xmx1536M', '-jar', 'paper.jar', '--nogui']
+    volumes:
+      - ./dev:/server
+    ports:
+      - '127.0.0.1:25575:25565'
+    stdin_open: true
+    tty: false
+    stop_grace_period: 30s
+    restart: 'no'
+    networks: [development]
+networks:
+  development:
+    # Minecraft認証の外向き通信を許可。待受ポートはlocalhostだけに公開。
+    driver: bridge

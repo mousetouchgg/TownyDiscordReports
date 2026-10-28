@@ -1,0 +1,5 @@
+name: TDRDevelopmentProbe
+version: '1.0'
+main: jp.tdrprobe.Probe
+api-version: '26.3'
+depend: [TownyDiscordReports, Towny, SiegeWar]

@@ -1,0 +1,15 @@
+name: TownyDiscordReports
+version: '${version}'
+main: jp.tdr.TownyDiscordReports
+api-version: '26.3'
+depend: [Towny]
+softdepend: [SiegeWar, Vault, Essentials]
+commands:
+  tdr:
+    description: Towny Discordレポートの管理
+    permission: townydiscordreports.admin
+    usage: /tdr <reload|status|ranking player|ranking nation|send daily|testdiscord>
+permissions:
+  townydiscordreports.admin:
+    description: レポート管理権限
+    default: op

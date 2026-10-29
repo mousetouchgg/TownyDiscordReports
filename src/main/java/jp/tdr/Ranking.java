@@ -1,6 +1,7 @@
 package jp.tdr;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public final class Ranking {
@@ -41,7 +42,13 @@ public final class Ranking {
         + (movement > 0 ? "↑" + movement : movement < 0 ? "↓" + -movement : "変動なし");
   }
 
+  /** Display only: ranking order and stored balances retain their original precision. */
+  public static String formatMoney(BigDecimal value) {
+    return value.setScale(2, RoundingMode.HALF_UP).toPlainString();
+  }
+
   public static String signed(BigDecimal value) {
-    return (value.signum() > 0 ? "+" : "") + value.toPlainString();
+    var rounded = value.setScale(2, RoundingMode.HALF_UP);
+    return (rounded.signum() > 0 ? "+" : "") + formatMoney(rounded);
   }
 }

@@ -21,7 +21,7 @@ python3 scripts/prepare-dev.py --plugins /path/to/plugins.zip --download-paper
 
 正しいPaper JARがある場合は`--download-paper`の代わりに`--paper /path/to/paper.jar`を指定できる。`--download-paper`は公式配布の26.3 build 227を取得する。ダウンロード時はSHA-256を照合する。
 
-成果物：`build/libs/TownyDiscordReports-1.1.0.jar`。SQLite JDBCとGsonを同梱し、Towny/Vault/SiegeWarは同梱しない。WrapperはGradle 9.2.1に固定し、配布ZIPのチェックサムを設定済み。初回ビルドにはインターネットが必要。
+成果物：`build/libs/TownyDiscordReports-1.1.1.jar`。SQLite JDBCとGsonを同梱し、Towny/Vault/SiegeWarは同梱しない。WrapperはGradle 9.2.1に固定し、配布ZIPのチェックサムを設定済み。初回ビルドにはインターネットが必要。
 
 テストのみ：`./gradlew test`。HTML結果は`build/reports/tests/test/index.html`。
 
@@ -34,7 +34,7 @@ python3 scripts/prepare-dev.py --plugins /path/to/plugins.zip --download-paper
 cd dev
 "$JAVA_HOME/bin/java" -jar paper.jar --nogui
 cd ..
-cp build/libs/TownyDiscordReports-1.1.0.jar dev/plugins/
+cp build/libs/TownyDiscordReports-1.1.1.jar dev/plugins/
 docker compose up -d
 docker compose logs -f
 ```
@@ -90,6 +90,8 @@ URLは`https://discord.com/api/webhooks/ID/TOKEN`形式だけを許可する。�
 プレイヤーは`Bukkit.getOfflinePlayers()`と`Bukkit.getOnlinePlayers()`をUUIDで統合し、オンラインまたはプレイ履歴があり、Vaultの`hasAccount(OfflinePlayer)`がtrueのもの。初回ログイン中も含める。UUIDで識別し、取得時の最新の既知名を表示する。Vaultに全口座列挙APIはなく、Essentialsユーザーファイルだけが残る口座、NPC、削除済みプレイヤーデータは網羅できない。オフライン口座の正確性は利用プロバイダーに依存する。個別プレイヤーデータやEssentials設定を直接読み書きしない。
 
 国家はTowny APIで取得できる全国家。国家UUIDで識別する。Towny経済無効時は空のランキングとし、サーバーを停止させない。取得例外、NaN、Infinityは除外し、件数のみログへ出す。有限の負残高は借金として扱う。
+
+残高と前日差額の表示は小数点以下2桁に四捨五入する（HALF_UP）。Discordとゲーム内コマンドで共通。順位計算とSQLite保存では丸めず、取得時の精度を保持する。既存の送信済み・送信待ちJSONは書き換えない。
 
 残高降順、同額はUUID文字列昇順で連番順位を付ける（同順位方式ではない）。全対象の順位・残高を保存し、表示だけ上位N件に絞る。前日差額はUUIDで照合し、順位変動は「前日順位 − 当日順位」。前日レポートなしは「前日データなし」、前日対象に同じUUIDがなければ「前日対象外」。
 

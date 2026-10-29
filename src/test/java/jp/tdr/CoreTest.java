@@ -44,7 +44,7 @@ class CoreTest {
   void differenceAndMovement() {
     var old = Ranking.sort(List.of(v("a", 10), v("b", 20)));
     var now = Ranking.sort(List.of(v("a", 30), v("b", 5)));
-    assertEquals("前日比 +20.0 / 順位 ↑1", Ranking.comparison(now.getFirst(), old, true));
+    assertEquals("前日比 +20.00 / 順位 ↑1", Ranking.comparison(now.getFirst(), old, true));
     assertTrue(Ranking.comparison(now.get(1), old, true).contains("↓1"));
   }
 
@@ -59,7 +59,7 @@ class CoreTest {
   void renameUsesUuid() {
     var row = new Ranking.Row("same", "new", BigDecimal.TEN, 1);
     var old = new Ranking.Row("same", "old", BigDecimal.ONE, 1);
-    assertTrue(Ranking.comparison(row, List.of(old), true).contains("+9"));
+    assertTrue(Ranking.comparison(row, List.of(old), true).contains("+9.00"));
   }
 
   @Test
@@ -177,5 +177,39 @@ class CoreTest {
   void firstEmptyRankingStillExplainsMissingHistory() {
     var payload = Embed.ranking("日次", List.of(), List.of(), false, 10, "week").getFirst();
     assertTrue(payload.contains("前日データなし"));
+  }
+
+  @Test
+  void moneyDisplayRoundsBinaryNoiseAndSuppressesSignedZero() {
+    assertEquals("123.46", Ranking.formatMoney(new BigDecimal("123.45699999999996")));
+    assertEquals("10.00", Ranking.formatMoney(new BigDecimal("9.995")));
+    assertEquals("-10.00", Ranking.formatMoney(new BigDecimal("-9.995")));
+    assertEquals("0.00", Ranking.formatMoney(BigDecimal.ZERO));
+    assertEquals("+1.24", Ranking.signed(new BigDecimal("1.235")));
+    assertEquals("-1.24", Ranking.signed(new BigDecimal("-1.235")));
+    assertEquals("0.00", Ranking.signed(new BigDecimal("0.004")));
+    assertEquals("0.00", Ranking.signed(new BigDecimal("-0.004")));
+  }
+
+  @Test
+  void embedsFormatMoneyWithoutRoundingRankingsOrHistory() throws Exception {
+    var day = LocalDate.of(2026, 10, 29);
+    var now = Instant.now();
+    // Both display as 1.23; original balance must still determine their order.
+    var rows =
+        Ranking.sort(
+            List.of(
+                new Ranking.Value("a", "Example A", new BigDecimal("1.2341")),
+                new Ranking.Value("b", "Example B", new BigDecimal("1.2349"))));
+    assertEquals("b", rows.getFirst().id());
+    var previous = List.of(new Ranking.Row("b", "Example B", new BigDecimal("1.22"), 1));
+    String payload = Embed.ranking("ランキング", rows, previous, true, 10, day.toString()).getFirst();
+    assertTrue(payload.contains("1. Example B：1.23"));
+    assertTrue(payload.contains("前日比 +0.01"));
+    assertFalse(payload.contains("1.2349"));
+    try (var db = new Store(temp.resolve("precision.db"))) {
+      db.saveDaily(day, now, now, Map.of("player", rows), List.of(payload));
+      assertEquals(rows, db.rows(DailySchedule.key(day), "player"));
+    }
   }
 }

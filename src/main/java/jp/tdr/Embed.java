@@ -53,7 +53,7 @@ public final class Embed {
               + ". "
               + truncate(clean(row.name()), 100)
               + "："
-              + row.balance().toPlainString()
+              + Ranking.formatMoney(row.balance())
               + "\n"
               + Ranking.comparison(row, previous, hasPrevious)
               + "\n";

@@ -294,7 +294,7 @@ public final class TownyDiscordReports extends JavaPlugin implements TabComplete
             "現在のランキング / "
                 + (args[1].equals("player") ? snapshot.playerState() : snapshot.nationState()));
         for (var row : rows.stream().limit(settings.limit()).toList())
-          reply(sender, row.rank() + ". " + row.name() + "：" + row.balance().toPlainString());
+          reply(sender, row.rank() + ". " + row.name() + "：" + Ranking.formatMoney(row.balance()));
         if (rows.isEmpty()) reply(sender, "対象なし");
         return true;
       }

@@ -103,7 +103,7 @@ class DailyTest {
     try (var db = new Store(file)) {
       assertTrue(db.exists(DailySchedule.key(day.minusDays(1))));
       assertEquals(
-          "前日比 +20.0 / 順位 ↑1",
+          "前日比 +20.00 / 順位 ↑1",
           Ranking.comparison(
               today.getFirst(), db.rows(DailySchedule.key(day.minusDays(1)), "player"), true));
       assertEquals("2026-10-30", db.metadata("next-day"));
